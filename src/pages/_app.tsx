@@ -1,67 +1,81 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
-import { Web3Auth } from "@web3auth/modal";
-import { CHAIN_NAMESPACES, SafeEventEmitterProvider } from "@web3auth/base";
-import LandingComponent from "../common/components/Landing/Landing.component";
+import React,{FC,useState,useEffect} from 'react';
 import Layout from "../common/components/Layout/Layout.component";
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistor ,store } from '../common/redux/store';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useCookies } from 'react-cookie';
+import { useMediaQuery } from '@mui/material';
 
-const clientId = "BAx7NH-TFykkBbC-Yyb6FFK6-5LVAmBW9sQ4gZz5akxEPEblxJMKpttHDM5g9S8RAe-aTfwErtnj6thcWzwu-kM";
+interface Props {
+  Component: any,
+  pageProps: any,
+}
 
-function App() {
-  const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
-  const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
+const lightTheme = createTheme({
+  palette: {
+    mode: 'light'
+  }
+})
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark'
+  }
+})
+
+function getActiveTheme(themeMode: 'light' | 'dark') {
+  return themeMode === 'light' ? lightTheme : darkTheme;
+}
+
+const PREFERENCE_COOKIE_NAME = 'theme-preference';
+
+
+const App:FC<Props> =({ Component, pageProps  })=> {
+  const [pageLoaded,setPageLoaded] = React.useState(false);
+  const userSystemThemePreferenceDark = useMediaQuery('(prefers-color-scheme: dark)');
+  
+  const [activeTheme, setActiveTheme] = useState(lightTheme);
+  const [cookieTheme, setCookieTheme] = useCookies([PREFERENCE_COOKIE_NAME]);
+
+  const defaultInitialTheme = userSystemThemePreferenceDark ? 'dark' : 'light';
+  const preferredTheme = cookieTheme && cookieTheme[PREFERENCE_COOKIE_NAME] ? cookieTheme[PREFERENCE_COOKIE_NAME] : defaultInitialTheme;
+
+  const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark'>(preferredTheme);
+
+  const toggleTheme: React.MouseEventHandler<HTMLAnchorElement> = () => {
+    const desiredTheme = selectedTheme === 'light' ? 'dark' : 'light';
+
+    setSelectedTheme(desiredTheme);
+    setCookieTheme(PREFERENCE_COOKIE_NAME, desiredTheme);
+  };
 
   useEffect(() => {
-    const init = async () => {
-      try {
-      const web3auth = new Web3Auth({
-        clientId,
-        chainConfig: {
-          chainNamespace: CHAIN_NAMESPACES.EIP155,
-          chainId: "0x1",
-          rpcTarget: "https://rpc.ankr.com/eth",
-        },
-      });
-
-      setWeb3auth(web3auth);
-
-      await web3auth.initModal();if (web3auth.provider) {
-            setProvider(web3auth.provider);
-          };
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      init();
-  }, []);
+    setActiveTheme(getActiveTheme(selectedTheme))
+  }, [selectedTheme]);
   
-  const login = async () => {
-    if (!web3auth) {
-      console.log("web3auth not initialized yet");
-      return;
-    }
-    const web3authProvider = await web3auth.connect();
-    setProvider(web3authProvider);
-  };
-
-  const logout = async () => {
-    if (!web3auth) {
-      console.log("web3auth not initialized yet");
-      return;
-    }
-    await web3auth.logout();
-    setProvider(null);
-  };
+  useEffect(()=>{
+      setPageLoaded(true);
+    },[]);
+    
 
   return (
-    <div className="container">
-
-      <div className="grid">{provider ? 
-      <Layout onClick={logout}/> : 
-      <LandingComponent setClickLogin={login} />}</div>
-    </div>
-  );
+      <ThemeProvider theme={activeTheme}>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <Layout toggleTheme={toggleTheme}>
+                { (pageLoaded) ?
+                <Component {...pageProps} />
+                : null
+              }
+              </Layout> 
+            </PersistGate>
+          </Provider>
+      </ThemeProvider>
+);
 }
 
 export default App;
+  
+

@@ -3,13 +3,13 @@ import dynamic from "next/dynamic";
 
 const App = dynamic(
   () => {
-    return import("./_app");
+    return import("./App");
   },
   { ssr: false }
 );
 
 const Home: NextPage = () => {
-  return <App />;
+  return <App />
 }
 
 export default Home

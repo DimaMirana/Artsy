@@ -1,0 +1,14 @@
+.footerStyle {
+    height: 7vh;
+    width: 100%;
+    background-color: rgb(25, 118, 210);
+    color: white;
+}
+
+.footerContent {
+    display: flex;
+    height: inherit;
+    align-items: center;
+    justify-content: center;
+    
+}

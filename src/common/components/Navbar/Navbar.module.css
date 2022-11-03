@@ -1,0 +1,26 @@
+.navbar{
+    margin: 10px auto 80px;
+    text-decoration: none;
+    margin: 10px;
+    color: white;
+}
+
+.navbarDrawer {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+    text-decoration: none;
+    color:rgb(25, 118, 210);
+}
+/* nav {
+    margin: 10px auto 80px;
+    padding: 10px 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    border-bottom: 1px solid #ddd;
+}
+
+nav a {
+    margin-left: 12px;
+} */

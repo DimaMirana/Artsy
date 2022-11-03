@@ -1,3 +1,4 @@
+import React from 'react';
 import {FC, Fragment}  from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -6,11 +7,12 @@ import Button from '@mui/material/Button';
 import Image from 'next/image';
 import Style from './Landing.module.css';
 
-type AppProps = {
-    setClickLogin: Function;
-};
+interface Props {
+  setClickLogin: Function
+}
 
-const LandingComponent:FC<AppProps>=({setClickLogin})=> {
+const LandingComponent:FC<Props>=({setClickLogin})=> {
+    
   return (
     <Fragment>
       <CssBaseline />
